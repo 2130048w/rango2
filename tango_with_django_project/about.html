@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+{% load staticfiles%}
+
+<html>
+    <head>
+        <title> About</title>
+    </head>
+
+    <body>
+        <h1> About page</h1>
+        <div>
+            this tutorial has been put together by <br />
+            <strong> {{ boldmessage }}</strong> <br />
+        </div>
+        <div>
+            <a href="/rango/">Home</a><br />
+            <img src = "{% static "images/cat.jpg" %}"
+                 alt = Picture of a cat" />
+
+        </div>
+    </body>
+
+</html>
