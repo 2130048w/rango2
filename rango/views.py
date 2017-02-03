@@ -3,8 +3,13 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from rango.models import Category, Page
 from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
+from django.contrib.auth import authenticate, login, logout
+from django.http import HttpResponse, HttpResponseRedirect
+from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import login_required
 
 def index(request):
+	request.session.set_test_cookie*()
     # query the database for a list of ALL categories currently stored
     # order the categories by no. likes in descending order
     # retrieve the top 5 only - or all less than 5
@@ -13,6 +18,7 @@ def index(request):
 	category_list = Category.objects.order_by('-likes')[:5]
 	page_list = Page.objects.order_by('-views')[:5]
 	context_dict = {'categories': category_list, 'pages': page_list}
+	
     #Render the response and send it back
 	return render(request,'rango/index.html', context=context_dict)
 
@@ -91,3 +97,29 @@ def register(request):
 					{'user_form': user_form,
 					'profile_form': profile_form,
 					'registered': registered})
+					
+def user_login(request):
+	if request_method == 'POST':
+		username = request.POST.get('username')
+		password = request.POST.get('password')
+		user = authenticate(username=username, password=password)
+		if user:
+			if user.is_active:
+				login(request, user)
+				return HttpResponseRedirect(reverse('index'))
+			else:
+				return HttpResponse("Your Rango account is disabled")
+		else:
+			print("Invalid login details: {0}, {1}".format(username, password))
+			return HttpResponse("Invalid login details supplied")
+	else:
+		return render(request, 'rango/login.html', {})
+		
+@login_required
+def restricted(request):
+	return HttpResponse("Since you're logged in you can see this text")
+	
+@login_required
+def user_logout(request):
+	logout(request)
+	return HttpResponseRedirect(reverse('index'))
